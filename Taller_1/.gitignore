@@ -11,3 +11,4 @@ models/
 *.egg-info/
 .coverage
 htmlcov/
+config.yaml.bak
