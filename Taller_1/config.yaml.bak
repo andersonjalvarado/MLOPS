@@ -1,6 +1,6 @@
 # Configuración del modelo
 model:
-  type: "random_forest"
+  type: "logistic"  # Opciones: logistic, random_forest, svm
   
   # Qué características usar - Separamos numéricas de categóricas
   features:

@@ -345,26 +345,41 @@ class MLPipeline:
     
     def _save_artifacts(self, model: Pipeline, metrics: Dict[str, Any], feature_cols: list):
         """
-        Guarda el modelo entrenado y toda la información relevante.
-        Esta información es crucial para reproducibilidad y debugging.
+        Guarda el modelo entrenado con identificación única por timestamp.
+        Mantiene un registro del modelo actualmente activo sin duplicar archivos.
         """
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         model_dir = Path(self.config['output']['model_dir'])
         
-        # Guardar modelo
-        model_path = model_dir / f'penguin_model_{timestamp}.joblib'
+        # Guardar modelo con timestamp único
+        model_filename = f'penguin_model_{timestamp}.joblib'
+        model_path = model_dir / model_filename
         joblib.dump(model, model_path)
         logger.info(f"Modelo guardado en: {model_path}")
         
-        # También guardar como "latest" para fácil uso en la API
-        latest_path = model_dir / 'penguin_model_latest.joblib'
-        joblib.dump(model, latest_path)
-        logger.info(f"Modelo también guardado como: {latest_path}")
+        # En lugar de crear una copia "latest", crear un archivo de configuración
+        # que indique cuál es el modelo actualmente activo
+        active_model_config = {
+            'active_model_filename': model_filename,
+            'active_model_timestamp': timestamp,
+            'activation_date': datetime.now().isoformat(),
+            'model_path': str(model_path),
+            'model_type': self.config['model']['type']
+        }
         
-        # Guardar metadatos completos
+        # Guardar la configuración del modelo activo
+        active_config_path = model_dir / 'active_model.json'
+        with open(active_config_path, 'w', encoding='utf-8') as f:
+            json.dump(active_model_config, f, indent=2, ensure_ascii=False)
+        
+        logger.info(f"Configuración del modelo activo guardada en: {active_config_path}")
+        logger.info(f"Modelo activo: {model_filename}")
+        
+        # Guardar metadatos completos (como antes, pero con timestamp específico)
         if self.config['output']['save_metadata']:
             metadata = {
-                'timestamp': datetime.now().isoformat(),
+                'timestamp': timestamp,  # Usar el mismo timestamp
+                'model_filename': model_filename,  # Incluir el nombre específico
                 'model_type': self.config['model']['type'],
                 'feature_columns': feature_cols,
                 'metrics': metrics,

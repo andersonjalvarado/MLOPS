@@ -122,9 +122,9 @@ train() {
     python train.py --config config.yaml
     
     # Verificar que el modelo se haya guardado correctamente
-    if [ -f "models/penguin_model_latest.joblib" ]; then
+    if [ -f "models/active_model.json" ]; then
         print_success "Entrenamiento completado - Modelo guardado exitosamente"
-        print_status "Modelo disponible en: models/penguin_model_latest.joblib"
+        print_status "Modelo disponible en: models/active_model.json"
     else
         print_error "El entrenamiento falló - No se encontró el modelo generado"
         exit 1
@@ -144,7 +144,7 @@ api() {
     source venv/bin/activate
     
     # Verificar que existe un modelo entrenado
-    if [ ! -f "models/penguin_model_latest.joblib" ]; then
+    if [ ! -f "models/active_model.json" ]; then
         print_warning "No se encontró modelo entrenado"
         print_status "Ejecutando entrenamiento automáticamente..."
         train
@@ -180,7 +180,7 @@ docker_build() {
     fi
     
     # Verificar que tenemos un modelo para incluir en la imagen
-    if [ ! -f "models/penguin_model_latest.joblib" ]; then
+    if [ ! -f "models/active_model.json" ]; then
         print_warning "No se encontró modelo entrenado"
         print_status "El contenedor se construirá pero necesitarás entrenar un modelo"
         print_status "Puedes entrenar con: ./run.sh setup && ./run.sh train"
@@ -209,6 +209,14 @@ docker_start() {
         exit 1
     fi
     
+    # Verificar si el contenedor ya está existente
+    if docker ps -a | grep -q penguin-api; then
+        print_warning "Contenedor 'penguin-api' ya existe"
+        print_status "Deteniendo y eliminando contenedor existente..."
+        docker rm penguin-api
+    fi
+
+
     # Detener contenedor existente si está corriendo
     existing_container=$(docker ps -q -f name=penguin-api)
     if [ ! -z "$existing_container" ]; then
@@ -292,8 +300,8 @@ status() {
     fi
     
     # Verificar modelo
-    if [ -f "models/penguin_model_latest.joblib" ]; then
-        model_size=$(du -h models/penguin_model_latest.joblib | cut -f1)
+    if [ -f "models/active_model.json" ]; then
+        model_size=$(du -h models/active_model.json | cut -f1)
         print_success "✅ Modelo ML: Entrenado (tamaño: $model_size)"
     else
         print_error "❌ Modelo ML: No entrenado (ejecuta: ./run.sh train)"
