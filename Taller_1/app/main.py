@@ -140,59 +140,146 @@ class ModelInfo(BaseModel):
 
 class ModelManager:
     """
-    Clase singleton para gestionar el modelo ML.
-    Centraliza la carga, predicciones y metadatos del modelo.
+    Gestor de modelos con versionado estricto por timestamp.
+    No mantiene copias duplicadas, solo referencias a modelos específicos.
     """
     
     def __init__(self):
         self.model = None
         self.metadata = None
         self.model_version = "unknown"
+        self.model_filename = None
         self.load_timestamp = None
         self.feature_columns = None
         
-    def load_model(self, model_path: str = "models/penguin_model_latest.joblib"):
+    def load_active_model(self, models_dir: str = None):
         """
-        Carga el modelo entrenado y sus metadatos.
+        Carga el modelo actualmente marcado como activo según active_model.json
         """
         try:
-            model_path = Path(model_path)
+            # Determinar el directorio de modelos
+            if models_dir is None:
+                current_dir = Path(__file__).parent
+                project_root = current_dir.parent
+                models_dir = project_root / "models"
+            else:
+                models_dir = Path(models_dir)
             
-            if not model_path.exists():
-                logger.error(f"Archivo de modelo no encontrado: {model_path}")
+            # Buscar el archivo de configuración del modelo activo
+            active_config_path = models_dir / 'active_model.json'
+            
+            if not active_config_path.exists():
+                logger.error(f"Archivo de configuración del modelo activo no encontrado: {active_config_path}")
+                logger.info("Esto significa que no hay ningún modelo marcado como activo.")
+                logger.info("Entrena un modelo primero con: ./run.sh train")
                 return False
             
-            # Cargar modelo
+            # Leer la configuración del modelo activo
+            with open(active_config_path, 'r', encoding='utf-8') as f:
+                active_config = json.load(f)
+            
+            active_filename = active_config['active_model_filename']
+            logger.info(f"Modelo activo identificado: {active_filename}")
+            
+            # Construir la ruta completa al modelo activo
+            model_path = models_dir / active_filename
+            
+            if not model_path.exists():
+                logger.error(f"El modelo activo especificado no existe: {model_path}")
+                logger.error("Esto indica una inconsistencia en la configuración.")
+                return False
+            
+            # Cargar el modelo específico
+            return self._load_specific_model(model_path, active_config)
+            
+        except Exception as e:
+            logger.error(f"Error al cargar modelo activo: {e}")
+            return False
+    
+    def _load_specific_model(self, model_path: Path, active_config: dict):
+        """
+        Carga un modelo específico y valida su funcionalidad.
+        """
+        try:
+            logger.info(f"Cargando modelo desde: {model_path}")
+            
+            # Verificaciones de integridad del archivo
+            file_size = model_path.stat().st_size
+            logger.info(f"Tamaño del archivo: {file_size} bytes")
+            
+            if file_size == 0:
+                logger.error("El archivo del modelo está vacío")
+                return False
+            
+            # Cargar el modelo
             self.model = joblib.load(model_path)
             self.load_timestamp = datetime.now()
-            logger.info(f"Modelo cargado desde: {model_path}")
+            self.model_filename = active_config['active_model_filename']
+            self.model_version = active_config['active_model_timestamp']
             
-            # Intentar cargar metadatos
-            self._load_metadata(model_path)
+            # Validar el modelo cargado
+            if self.model is None:
+                logger.error("joblib.load retornó None")
+                return False
+            
+            # Verificar métodos esenciales
+            required_methods = ['predict', 'predict_proba']
+            for method in required_methods:
+                if not hasattr(self.model, method):
+                    logger.error(f"El modelo no tiene el método requerido: {method}")
+                    return False
+            
+            logger.info(f"✅ Modelo {self.model_filename} cargado exitosamente")
+            logger.info(f"📅 Versión del modelo: {self.model_version}")
+            
+            # Cargar metadatos si están disponibles
+            self._load_metadata_for_specific_model(model_path)
             
             return True
             
         except Exception as e:
-            logger.error(f"Error al cargar modelo: {e}")
+            logger.error(f"Error al cargar modelo específico: {e}")
+            import traceback
+            logger.error(f"Traceback: {traceback.format_exc()}")
             return False
     
-    def _load_metadata(self, model_path: Path):
-        """Intenta cargar metadatos del modelo"""
+    def _load_metadata_for_specific_model(self, model_path: Path):
+        """
+        Carga metadatos para un modelo específico basado en su timestamp.
+        """
         try:
-            # Buscar archivo de metadatos
-            metadata_pattern = model_path.parent / f"{model_path.stem}_metadata.json"
+            # Construir el nombre del archivo de metadatos basado en el modelo
+            model_stem = model_path.stem  # penguin_model_20241208_143022
+            metadata_path = model_path.parent / f"{model_stem}_metadata.json"
             
-            if metadata_pattern.exists():
-                with open(metadata_pattern, 'r', encoding='utf-8') as f:
+            if metadata_path.exists():
+                with open(metadata_path, 'r', encoding='utf-8') as f:
                     self.metadata = json.load(f)
-                    self.model_version = self.metadata.get('timestamp', 'unknown')
-                    self.feature_columns = self.metadata.get('feature_columns', [])
-                logger.info("Metadatos del modelo cargados")
+                    
+                self.feature_columns = self.metadata.get('feature_columns', [])
+                logger.info("📋 Metadatos del modelo cargados exitosamente")
+                logger.info(f"🎯 Características del modelo: {len(self.feature_columns)} columnas")
             else:
-                logger.warning("No se encontraron metadatos del modelo")
+                logger.warning(f"No se encontraron metadatos para el modelo: {metadata_path}")
                 
         except Exception as e:
-            logger.warning(f"No se pudieron cargar metadatos: {e}")
+            logger.warning(f"Error al cargar metadatos: {e}")
+    
+    # El método load_model delega a load_active_model para mantener compatibilidad
+    def load_model(self, model_path: str = None):
+        """
+        Método de compatibilidad que carga el modelo activo.
+        """
+        if model_path is not None:
+            # Si se proporciona una ruta específica, cargar ese modelo directamente
+            logger.info(f"Cargando modelo específico: {model_path}")
+            return self._load_specific_model(Path(model_path), {
+                'active_model_filename': Path(model_path).name,
+                'active_model_timestamp': 'manual_load'
+            })
+        else:
+            # Comportamiento por defecto: cargar el modelo activo
+            return self.load_active_model()
     
     def is_loaded(self) -> bool:
         """Verifica si el modelo está cargado y listo"""
@@ -353,20 +440,29 @@ app_start_time = datetime.now()
 async def startup_event():
     """
     Evento que se ejecuta al iniciar la aplicación.
-    Carga el modelo y configura el entorno.
+    Carga el modelo activo basado en la configuración de versionado.
     """
-    logger.info("Iniciando aplicación FastAPI")
+    logger.info("🚀 Iniciando aplicación FastAPI con versionado de modelos por timestamp")
     
     # Asegurar que el directorio de modelos existe
-    Path("models").mkdir(exist_ok=True)
+    current_dir = Path(__file__).parent
+    project_root = current_dir.parent
+    models_dir = project_root / "models"
     
-    # Intentar cargar el modelo
-    model_loaded = model_manager.load_model()
+    if not models_dir.exists():
+        logger.warning("📁 Directorio de modelos no existe, creándolo...")
+        models_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Intentar cargar el modelo activo
+    model_loaded = model_manager.load_active_model()
     
     if model_loaded:
-        logger.info("✅ Aplicación iniciada exitosamente con modelo cargado")
+        logger.info("✅ Aplicación iniciada exitosamente con modelo versionado cargado")
+        logger.info(f"🏷️ Modelo activo: {model_manager.model_filename}")
+        logger.info(f"📅 Versión: {model_manager.model_version}")
     else:
-        logger.warning("⚠️ Aplicación iniciada pero sin modelo cargado")
+        logger.warning("⚠️ Aplicación iniciada pero sin modelo activo")
+        logger.info("💡 Para activar un modelo, entrena uno nuevo con: ./run.sh train")
 
 @app.on_event("shutdown")
 async def shutdown_event():
@@ -390,14 +486,14 @@ async def root():
 @app.get("/health", response_model=HealthResponse, tags=["Health"])
 async def health_check():
     """
-    Health check endpoint para monitoreo.
+    Health check con información detallada del modelo versionado.
     """
     uptime = (datetime.now() - app_start_time).total_seconds()
     
     return HealthResponse(
         status="healthy" if model_manager.is_loaded() else "degraded",
         model_loaded=model_manager.is_loaded(),
-        model_version=model_manager.model_version if model_manager.is_loaded() else None,
+        model_version=f"{model_manager.model_filename} (v{model_manager.model_version})" if model_manager.is_loaded() else None,
         uptime_seconds=uptime,
         timestamp=datetime.now().isoformat()
     )
