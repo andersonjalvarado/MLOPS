@@ -7,6 +7,7 @@ __pycache__/
 .coverage
 .tox/
 .cache/
+config.yaml.bak
 
 # Archivos de entorno de desarrollo
 .env
