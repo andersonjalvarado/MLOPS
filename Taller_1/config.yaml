@@ -1,0 +1,50 @@
+# Configuración del modelo
+model:
+  type: "logistic"  # Opciones: logistic, random_forest, svm
+  
+  # Qué características usar - Separamos numéricas de categóricas
+  features:
+    numeric:
+      - "bill_length_mm"      # Longitud del pico
+      - "bill_depth_mm"       # Profundidad del pico  
+      - "flipper_length_mm"   # Longitud de la aleta
+      - "body_mass_g"         # Masa corporal
+      - "bill_ratio"          # Característica engineered: ratio del pico
+    categorical:
+      - "island"              # Isla donde vive el pingüino
+      - "sex"                 # Sexo del pingüino
+
+# Configuración para optimización de hiperparámetros
+hyperparameter_tuning:
+  enabled: true  # Cambiar a false para entrenamiento rápido
+  cv_folds: 5    # Validación cruzada de 5 pliegues
+  
+  # Parámetros específicos para regresión logística
+  logistic_params:
+    C: [0.1, 1.0, 10.0]           # Regularización - más bajo = más regularización
+    penalty: ["l1", "l2"]          # Tipo de regularización
+    solver: ["liblinear", "saga"]   # Algoritmo de optimización
+  
+  # Parámetros para Random Forest
+  random_forest_params:
+    n_estimators: [50, 100, 200]
+    max_depth: [3, 5, 7, null]
+    min_samples_split: [2, 5, 10]
+  
+  # Parámetros para SVM
+  svm_params:
+    C: [0.1, 1.0, 10.0]
+    kernel: ["linear", "rbf"]      # Tipo de kernel
+    gamma: ["scale", "auto"]       # Parámetro de kernel   
+
+# Configuración de datos
+data:
+  test_size: 0.2        # 20% para prueba
+  random_state: 42      # Semilla para reproducibilidad
+  stratify: true        # Mantener proporciones de clases
+
+# Configuración de salida
+output:
+  model_dir: "models"
+  log_dir: "logs"
+  save_metadata: true   # Guardar información del entrenamiento

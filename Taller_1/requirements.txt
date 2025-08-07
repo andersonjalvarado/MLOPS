@@ -1,0 +1,22 @@
+# Framework web para la API - FastAPI
+fastapi==0.115.14
+uvicorn[standard]==0.35.0
+
+# Librerías de Machine Learning
+scikit-learn==1.7.1
+pandas==2.3.0
+numpy==2.3.0
+joblib==1.5.1
+
+# Dataset específico - Palmer Penguins
+palmerpenguins==0.1.4
+
+# Validación de datos - Pydantic
+pydantic==2.11.7
+python-multipart==0.0.20
+
+# Configuración - YAML es más legible que JSON para configs
+pyyaml==6.0.2
+
+# Utilidades adicionales
+python-dotenv==1.1.1

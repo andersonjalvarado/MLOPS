@@ -1,0 +1,59 @@
+# Archivos de desarrollo que no necesitamos en producción
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+.pytest_cache/
+.coverage
+.tox/
+.cache/
+
+# Archivos de entorno de desarrollo
+.env
+.env.local
+.env.development
+.venv/
+venv/
+env/
+
+# Archivos del sistema operativo
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Archivos de editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs y archivos temporales - los regeneraremos en el contenedor
+logs/*.log
+*.log
+tmp/
+temp/
+
+# Archivos de Git 
+.git/
+.gitignore
+
+# Documentación y archivos README
+README.md
+docs/
+*.md
+
+# Archivos de testing
+tests/
+test_*.py
+*_test.py
+
+# Modelos entrenados grandes - los montaremos como volúmenes
+# models/*.joblib (comentado porque sí queremos incluir el modelo base)
+
+# Archivos de configuración local
+docker-compose.override.yml

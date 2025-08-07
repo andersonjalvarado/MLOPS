@@ -1,0 +1,29 @@
+2025-08-07 11:49:46,525 - __main__ - INFO - Configuración cargada desde config.yaml
+2025-08-07 11:49:46,525 - __main__ - INFO - Directorio asegurado: models
+2025-08-07 11:49:46,525 - __main__ - INFO - Directorio asegurado: logs
+2025-08-07 11:49:46,525 - __main__ - INFO - Pipeline de ML inicializado
+2025-08-07 11:49:46,525 - __main__ - INFO - === INICIANDO PIPELINE DE ENTRENAMIENTO ===
+2025-08-07 11:49:46,525 - __main__ - INFO - Inicializando procesador de datos
+2025-08-07 11:49:46,525 - __main__ - INFO - Cargando dataset Palmer Penguins
+2025-08-07 11:49:46,526 - __main__ - INFO - Dataset cargado: 344 filas, 8 columnas
+2025-08-07 11:49:46,528 - __main__ - INFO - Removidas 0 filas sin especie
+2025-08-07 11:49:46,529 - __main__ - INFO - Características adicionales creadas: bill_ratio, body_mass_kg, mass_flipper_ratio
+2025-08-07 11:49:46,529 - __main__ - INFO - Distribución de especies: {'Adelie': 152, 'Gentoo': 124, 'Chinstrap': 68}
+2025-08-07 11:49:46,529 - __main__ - INFO - Características utilizadas: ['bill_length_mm', 'bill_depth_mm', 'flipper_length_mm', 'body_mass_g', 'bill_ratio', 'island', 'sex']
+2025-08-07 11:49:46,529 - __main__ - INFO - Shape de datos: X(344, 7), y(344,)
+2025-08-07 11:49:46,531 - __main__ - INFO - División train/test: 275 entrenamiento, 69 prueba
+2025-08-07 11:49:46,531 - __main__ - INFO - Inicializando entrenador de modelo
+2025-08-07 11:49:46,531 - __main__ - INFO - Inicializando procesador de datos
+2025-08-07 11:49:46,531 - __main__ - INFO - Pipeline de preprocesamiento creado para 5 características numéricas y 2 categóricas
+2025-08-07 11:49:46,531 - __main__ - INFO - Modelo 'logistic' creado exitosamente
+2025-08-07 11:49:46,531 - __main__ - INFO - Iniciando optimización de hiperparámetros
+2025-08-07 11:49:46,531 - __main__ - INFO - Probando 3 combinaciones de parámetros
+2025-08-07 11:49:48,507 - __main__ - INFO - Mejor puntuación: 0.9964
+2025-08-07 11:49:48,507 - __main__ - INFO - Mejores parámetros: {'classifier__C': 10.0, 'classifier__penalty': 'l1', 'classifier__solver': 'liblinear'}
+2025-08-07 11:49:48,507 - __main__ - INFO - Evaluando modelo en conjunto de prueba
+2025-08-07 11:49:48,543 - __main__ - INFO - Accuracy: 0.9855
+2025-08-07 11:49:48,543 - __main__ - INFO - CV Score: 1.0000 (+/- 0.0000)
+2025-08-07 11:49:48,544 - __main__ - INFO - Modelo guardado en: models/penguin_model_20250807_114948.joblib
+2025-08-07 11:49:48,544 - __main__ - INFO - Modelo también guardado como: models/penguin_model_latest.joblib
+2025-08-07 11:49:48,544 - __main__ - INFO - Metadatos guardados en: models/penguin_model_20250807_114948_metadata.json
+2025-08-07 11:49:48,544 - __main__ - INFO - === PIPELINE COMPLETADO EXITOSAMENTE ===
