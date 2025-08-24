@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  jupyterlab:
+    build: ./jupyter
+    volumes:
+      - ./shared_models:/workspace/sharedmodels
+      - ./jupyterlab/notebooks:/workspace/notebooks
+    ports:
+      - "8888:8888"
+    environment:
+      - JUPYTER_TOKEN=dev
+    working_dir: /workspace
+
+  api:
+    build: ./api
+    volumes:
+      - ./sharedmodels:/app/sharedmodels
+    ports:
+      - "8000:8000"
+    working_dir: /app
