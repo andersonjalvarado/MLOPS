@@ -1,0 +1,125 @@
+
+
+volumes:
+  airflow_logs:
+  artifacts:
+
+services:
+  airflow-db:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "airflow"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_DATABASE: penguins_data
+      MYSQL_USER: penguin
+      MYSQL_PASSWORD: penguin
+    ports:
+      - "3306:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-pexample"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  airflow-init:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    depends_on:
+      airflow-db:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      # Dependencies are baked into the custom image
+    user: "0:0"
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+      - ./artifacts:/opt/artifacts
+    command: >-
+      bash -c "airflow db migrate && airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin"
+
+  airflow-webserver:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    depends_on:
+      airflow-db:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+      mysql:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      # Dependencies are baked into the custom image
+      DATA_DB_HOST: mysql
+      DATA_DB_USER: penguin
+      DATA_DB_PASSWORD: penguin
+      DATA_DB_NAME: penguins_data
+      ARTIFACTS_DIR: /opt/artifacts
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+      - ./artifacts:/opt/artifacts
+    ports:
+      - "8080:8080"
+    command: webserver
+    user: "${AIRFLOW_UID:-50000}:0"
+
+  airflow-scheduler:
+    build:
+      context: ./airflow
+      dockerfile: Dockerfile
+    depends_on:
+      airflow-db:
+        condition: service_healthy
+      airflow-init:
+        condition: service_completed_successfully
+      mysql:
+        condition: service_healthy
+    environment:
+      AIRFLOW__CORE__EXECUTOR: LocalExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@airflow-db:5432/airflow
+      AIRFLOW__CORE__LOAD_EXAMPLES: "false"
+      # Dependencies are baked into the custom image
+      DATA_DB_HOST: mysql
+      DATA_DB_USER: penguin
+      DATA_DB_PASSWORD: penguin
+      DATA_DB_NAME: penguins_data
+      ARTIFACTS_DIR: /opt/artifacts
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - airflow_logs:/opt/airflow/logs
+      - ./artifacts:/opt/artifacts
+    command: scheduler
+    user: "${AIRFLOW_UID:-50000}:0"
+
+  api:
+    build: ./api
+    environment:
+      ARTIFACTS_DIR: /opt/artifacts
+    volumes:
+      - ./api:/app
+      - ./artifacts:/opt/artifacts
+    ports:
+      - "8000:8000"
+    depends_on:
+      - airflow-webserver
+
+

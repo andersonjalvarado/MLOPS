@@ -1,0 +1,20 @@
+# Common
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Project Specific (estructura aplanada)
+artifacts/*
+!artifacts/.gitkeep
+Reqs/
+airflow/dags/__pycache__/
+api/__pycache__/
+Taller03/

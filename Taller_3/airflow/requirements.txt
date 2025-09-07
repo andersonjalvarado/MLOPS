@@ -1,0 +1,10 @@
+pandas==2.2.2
+seaborn==0.13.2
+scikit-learn==1.4.2
+PyMySQL==1.1.0
+joblib==1.4.2
+SQLAlchemy==1.4.52
+numpy<2.0
+palmerpenguins==0.1.4
+
+
