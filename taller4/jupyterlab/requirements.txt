@@ -1,0 +1,8 @@
+mlflow
+awscli
+boto3
+psycopg2-binary
+scikit-learn
+pandas
+seaborn
+sqlalchemy
