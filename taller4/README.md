@@ -35,6 +35,11 @@ Este comando inicia los tres servicios en segundo plano. Puedes verificar que es
     Acceder a la consola de MinIO en http://localhost:9001.
     Iniciar sesión con admin / supersecret.
     Crear un nuevo bucket llamado **mlflow**.
+    
+#### Evidencias: 
+![MinIO creado y accesado](./evidencias/MinIOcreadoBucketS3.png)
+![MlFlow Creado](./evidencias/EjecucionMLFLOW.png)
+
 
 ### 3.2 Ejecución de el contenedor de JupyterLab
 
@@ -49,6 +54,9 @@ docker run -it --name jupyter_dev --rm \
   -v "${PWD}/notebooks:/home/jovyan/work" \
   taller_jupyterlab
 ```
+#### Evidencias: 
+![Ejecución contenedor JupyterLab](./evidencias/EjecucionJupyterLab.png)
+![JupyterLab encendido y accedido](./evidencias/JupyterLabON.png.png)
 
 ### 3.3 Entrenar y registrar el modelo
 
@@ -56,11 +64,17 @@ docker run -it --name jupyter_dev --rm \
 - Copiar esta URl y acceder desde navegador
 - En JupyterLab correr el notebook experimentacion.ipynb, lo cual hara 20 runs sin errores en la salida de celda.
 
+#### Evidencias: 
+![Ejecución codigo JupyterLab](./evidencias/JupyterLabRunning.png)
+
 ### 3.4 Validar registros en Mlflow
 
 - Navegar a la interfaz de MLflow: http://localhost:5000.
 - Verificar que en la pestaña "Experiments" aparece Penguin_Species_Classifier con 20 ejecuciones.
 - Verifica que en la pestaña "Models" aparece el modelo PenguinClassifierModel registrado.
+
+#### Evidencias: 
+![Revision de registros Mlflow](./evidencias/MlFlowHistorial.png)
 
 ---
 ## 4. Servir y consumir el servicio
@@ -84,7 +98,7 @@ source venv/bin/activate
 Instala las librerías especificadas en requirements.txt. Es crucial que estas versiones (especialmente scikit-learn) coincidan con las del entorno de entrenamiento para evitar conflictos, actualmente vinculas a scikit-learn==1.3.1
 
 ```bash
-pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 
 ### 4.3 Iniciar el Servidor de la API
@@ -115,4 +129,7 @@ Para este curl se espera una respuesta json:
 ```bash
 {"species_prediction":"Adelie"}
 ```
+#### Evidencias:
+![Revision de registros Mlflow](./evidencias/Consumo.png)
+
 
