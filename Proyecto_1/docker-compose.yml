@@ -1,0 +1,350 @@
+services:
+  # Base de datos para batches de datos
+  postgres-batches:
+    image: postgres:16-alpine
+    container_name: PostgreSQL-Batches
+    environment:
+      POSTGRES_USER: batchuser
+      POSTGRES_PASSWORD: batchpass123
+      POSTGRES_DB: batches_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_batches_data:/var/lib/postgresql/data
+      - ./init-scripts/init-batches.sql:/docker-entrypoint-initdb.d/init-batches.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U batchuser -d batches_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mlops-network
+
+  # Base de datos para metadata de MLflow
+  mysql-mlflow:
+    image: mysql:8.0
+    container_name: MySQL-MLflow
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpass123
+      MYSQL_DATABASE: mlflow_db
+      MYSQL_USER: mlflowuser
+      MYSQL_PASSWORD: mlflowpass123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_mlflow_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "mlflowuser", "-pmlflowpass123"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mlops-network
+
+  # MinIO para almacenamiento de artefactos
+  minio:
+    image: quay.io/minio/minio:latest
+    container_name: MinIO
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: admin
+      MINIO_ROOT_PASSWORD: supersecret123
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mlops-network
+
+  # Servicio MLflow
+  mlflow:
+    build:
+      context: ./services/mlflow
+      dockerfile: Dockerfile
+    container_name: MLflow
+    environment:
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: supersecret123
+      DB_HOST: mysql-mlflow
+      DB_PORT: 3306
+      DB_USER: mlflowuser
+      DB_PASSWORD: mlflowpass123
+      DB_NAME: mlflow_db
+    ports:
+      - "5001:5000"
+    depends_on:
+      mysql-mlflow:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+    networks:
+      - mlops-network
+
+  # PostgreSQL para Airflow
+  postgres-airflow:
+    image: postgres:16-alpine
+    container_name: PostgreSQL-Airflow
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow123
+      POSTGRES_DB: airflow_db
+    volumes:
+      - postgres_airflow_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U airflow -d airflow_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mlops-network
+
+  # Redis para Airflow (Celery)
+  redis-airflow:
+    image: redis:7-alpine
+    container_name: Redis-Airflow
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - mlops-network
+
+  # Airflow Webserver
+  airflow-webserver:
+    build:
+      context: ./services/airflow
+      dockerfile: Dockerfile
+    container_name: Airflow-Webserver
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow123@postgres-airflow:5432/airflow_db
+      AIRFLOW__CELERY__BROKER_URL: redis://redis-airflow:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow123@postgres-airflow:5432/airflow_db
+      AIRFLOW__CORE__FERNET_KEY: 'UKMzEm3yIuFYEq1y3-2FxGb2EQ_l_psp4YrHgMcb9Vw='
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW__API__AUTH_BACKENDS: 'airflow.api.auth.backend.basic_auth'
+      AIRFLOW_CONN_POSTGRES_BATCHES: postgresql://batchuser:batchpass123@postgres-batches:5432/batches_db
+      AIRFLOW_CONN_MLFLOW: http://mlflow:5000
+      EXTERNAL_API_URL: http://10.43.100.103:8080
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: supersecret123
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./scripts:/opt/airflow/scripts
+    depends_on:
+      postgres-airflow:
+        condition: service_healthy
+      redis-airflow:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+      postgres-batches:
+        condition: service_healthy
+    command: webserver
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+    networks:
+      - mlops-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Airflow Scheduler
+  airflow-scheduler:
+    build:
+      context: ./services/airflow
+      dockerfile: Dockerfile
+    container_name: Airflow-Scheduler
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow123@postgres-airflow:5432/airflow_db
+      AIRFLOW__CELERY__BROKER_URL: redis://redis-airflow:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow123@postgres-airflow:5432/airflow_db
+      AIRFLOW__CORE__FERNET_KEY: 'UKMzEm3yIuFYEq1y3-2FxGb2EQ_l_psp4YrHgMcb9Vw='
+      AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
+      AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
+      AIRFLOW_CONN_POSTGRES_BATCHES: postgresql://batchuser:batchpass123@postgres-batches:5432/batches_db
+      AIRFLOW_CONN_MLFLOW: http://mlflow:5000
+      EXTERNAL_API_URL: http://10.43.100.103:8080
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: supersecret123
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./scripts:/opt/airflow/scripts
+    depends_on:
+      postgres-airflow:
+        condition: service_healthy
+      redis-airflow:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    command: scheduler
+    restart: always
+    networks:
+      - mlops-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Airflow Worker
+  airflow-worker:
+    build:
+      context: ./services/airflow
+      dockerfile: Dockerfile
+    container_name: Airflow-Worker
+    environment:
+      AIRFLOW__CORE__EXECUTOR: CeleryExecutor
+      AIRFLOW__DATABASE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow123@postgres-airflow:5432/airflow_db
+      AIRFLOW__CELERY__BROKER_URL: redis://redis-airflow:6379/0
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow123@postgres-airflow:5432/airflow_db
+      AIRFLOW__CORE__FERNET_KEY: 'UKMzEm3yIuFYEq1y3-2FxGb2EQ_l_psp4YrHgMcb9Vw='
+      AIRFLOW_CONN_POSTGRES_BATCHES: postgresql://batchuser:batchpass123@postgres-batches:5432/batches_db
+      AIRFLOW_CONN_MLFLOW: http://mlflow:5000
+      EXTERNAL_API_URL: http://10.43.100.103:8080
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: supersecret123
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./logs:/opt/airflow/logs
+      - ./plugins:/opt/airflow/plugins
+      - ./scripts:/opt/airflow/scripts
+    depends_on:
+      postgres-airflow:
+        condition: service_healthy
+      redis-airflow:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    command: celery worker
+    restart: always
+    networks:
+      - mlops-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  # Servicio de Inference API
+  inference-api:
+    build:
+      context: ./services/inference
+      dockerfile: Dockerfile
+    container_name: Inference-API
+    environment:
+      MLFLOW_TRACKING_URI: http://mlflow:5000
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      AWS_ACCESS_KEY_ID: admin
+      AWS_SECRET_ACCESS_KEY: supersecret123
+      MODEL_NAME: "production_model"
+      MODEL_STAGE: "Production"
+    ports:
+      - "8000:8000"
+    depends_on:
+      mlflow:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+    networks:
+      - mlops-network
+
+  # Jupyter Notebook (opcional)
+  # jupyter:
+  #   image: jupyter/scipy-notebook:latest
+  #   container_name: Jupyter
+  #   environment:
+  #     JUPYTER_ENABLE_LAB: "yes"
+  #     JUPYTER_TOKEN: "valentasecret"
+  #     MLFLOW_TRACKING_URI: http://mlflow:5000
+  #     MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+  #     AWS_ACCESS_KEY_ID: admin
+  #     AWS_SECRET_ACCESS_KEY: supersecret123
+  #     POSTGRES_CONN: postgresql://batchuser:batchpass123@postgres-batches:5432/batches_db
+  #   ports:
+  #     - "8888:8888"
+  #   volumes:
+  #     - ./notebooks:/home/jovyan/work
+  #   depends_on:
+  #     - mlflow
+  #     - postgres-batches
+  #   restart: always
+  #   networks:
+  #     - mlops-network
+
+  # Streamlit UI
+  streamlit-ui:
+    build:
+      context: ./services/streamlit
+      dockerfile: Dockerfile
+    container_name: Streamlit-UI
+    environment:
+      EXTERNAL_API_URL: http://10.43.100.103:8080
+      INFERENCE_API_URL: http://inference-api:8000
+      MLFLOW_URL: http://mlflow:5000
+      AIRFLOW_URL: http://airflow-webserver:8080
+    ports:
+      - "8503:8503"
+    depends_on:
+      inference-api:
+        condition: service_healthy
+      mlflow:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8503/_stcore/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    restart: always
+    networks:
+      - mlops-network
+
+volumes:
+  postgres_batches_data:
+    driver: local
+  mysql_mlflow_data:
+    driver: local
+  minio_data:
+    driver: local
+  postgres_airflow_data:
+    driver: local
+
+networks:
+  mlops-network:
+    driver: bridge

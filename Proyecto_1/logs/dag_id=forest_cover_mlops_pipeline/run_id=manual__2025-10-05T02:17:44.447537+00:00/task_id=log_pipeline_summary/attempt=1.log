@@ -1,0 +1,33 @@
+[2025-10-05T02:22:42.371+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-10-05T02:22:42.386+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: forest_cover_mlops_pipeline.log_pipeline_summary manual__2025-10-05T02:17:44.447537+00:00 [queued]>
+[2025-10-05T02:22:42.390+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: forest_cover_mlops_pipeline.log_pipeline_summary manual__2025-10-05T02:17:44.447537+00:00 [queued]>
+[2025-10-05T02:22:42.390+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 3
+[2025-10-05T02:22:42.397+0000] {taskinstance.py:2888} INFO - Executing <Task(_PythonDecoratedOperator): log_pipeline_summary> on 2025-10-05 02:17:44.447537+00:00
+[2025-10-05T02:22:42.403+0000] {standard_task_runner.py:72} INFO - Started process 748 to run task
+[2025-10-05T02:22:42.404+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'forest_cover_mlops_pipeline', 'log_pipeline_summary', 'manual__2025-10-05T02:17:44.447537+00:00', '--job-id', '21', '--raw', '--subdir', 'DAGS_FOLDER/forest_cover_dag.py', '--cfg-path', '/home/airflow/tmp/tmpebkzi4ze']
+[2025-10-05T02:22:42.405+0000] {standard_task_runner.py:105} INFO - Job 21: Subtask log_pipeline_summary
+[2025-10-05T02:22:42.480+0000] {task_command.py:467} INFO - Running <TaskInstance: forest_cover_mlops_pipeline.log_pipeline_summary manual__2025-10-05T02:17:44.447537+00:00 [running]> on host 251551b582e0
+[2025-10-05T02:22:42.566+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='mlops-team-5' AIRFLOW_CTX_DAG_ID='forest_cover_mlops_pipeline' AIRFLOW_CTX_TASK_ID='log_pipeline_summary' AIRFLOW_CTX_EXECUTION_DATE='2025-10-05T02:17:44.447537+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-10-05T02:17:44.447537+00:00'
+[2025-10-05T02:22:42.567+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-10-05T02:22:42.569+0000] {logging_mixin.py:190} INFO - 
+======================================================================
+[2025-10-05T02:22:42.570+0000] {logging_mixin.py:190} INFO - RESUMEN DEL PIPELINE DE MLOPS
+[2025-10-05T02:22:42.570+0000] {logging_mixin.py:190} INFO - ======================================================================
+[2025-10-05T02:22:42.570+0000] {logging_mixin.py:190} INFO - Batch procesado: #5
+[2025-10-05T02:22:42.570+0000] {logging_mixin.py:190} INFO - Total de batches acumulados: 3/10
+[2025-10-05T02:22:42.570+0000] {logging_mixin.py:190} INFO - Total de registros: 17430
+[2025-10-05T02:22:42.570+0000] {logging_mixin.py:190} INFO - 
+Mejor modelo: RandomForest
+[2025-10-05T02:22:42.570+0000] {logging_mixin.py:190} INFO - Accuracy: 0.9475
+[2025-10-05T02:22:42.571+0000] {logging_mixin.py:190} INFO - 
+MLflow Tracking URI: http://mlflow:5000
+[2025-10-05T02:22:42.571+0000] {logging_mixin.py:190} INFO - Experimento: forest_cover_classification
+[2025-10-05T02:22:42.571+0000] {logging_mixin.py:190} INFO - ======================================================================
+[2025-10-05T02:22:42.571+0000] {logging_mixin.py:190} INFO - ✓ Pipeline ejecutado exitosamente
+[2025-10-05T02:22:42.571+0000] {logging_mixin.py:190} INFO - ======================================================================
+[2025-10-05T02:22:42.571+0000] {python.py:240} INFO - Done. Returned value was: None
+[2025-10-05T02:22:42.587+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-10-05T02:22:42.588+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=forest_cover_mlops_pipeline, task_id=log_pipeline_summary, run_id=manual__2025-10-05T02:17:44.447537+00:00, execution_date=20251005T021744, start_date=20251005T022242, end_date=20251005T022242
+[2025-10-05T02:22:42.617+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-10-05T02:22:42.644+0000] {taskinstance.py:3900} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-10-05T02:22:42.646+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

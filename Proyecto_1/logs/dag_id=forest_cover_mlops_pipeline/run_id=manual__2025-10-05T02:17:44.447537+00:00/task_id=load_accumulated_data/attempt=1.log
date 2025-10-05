@@ -1,0 +1,35 @@
+[2025-10-05T02:17:48.825+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-10-05T02:17:48.838+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: forest_cover_mlops_pipeline.load_accumulated_data manual__2025-10-05T02:17:44.447537+00:00 [queued]>
+[2025-10-05T02:17:48.843+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: forest_cover_mlops_pipeline.load_accumulated_data manual__2025-10-05T02:17:44.447537+00:00 [queued]>
+[2025-10-05T02:17:48.843+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 3
+[2025-10-05T02:17:48.850+0000] {taskinstance.py:2888} INFO - Executing <Task(_PythonDecoratedOperator): load_accumulated_data> on 2025-10-05 02:17:44.447537+00:00
+[2025-10-05T02:17:48.856+0000] {standard_task_runner.py:72} INFO - Started process 272 to run task
+[2025-10-05T02:17:48.859+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'forest_cover_mlops_pipeline', 'load_accumulated_data', 'manual__2025-10-05T02:17:44.447537+00:00', '--job-id', '18', '--raw', '--subdir', 'DAGS_FOLDER/forest_cover_dag.py', '--cfg-path', '/home/airflow/tmp/tmpjfvycb5z']
+[2025-10-05T02:17:48.861+0000] {standard_task_runner.py:105} INFO - Job 18: Subtask load_accumulated_data
+[2025-10-05T02:17:48.901+0000] {task_command.py:467} INFO - Running <TaskInstance: forest_cover_mlops_pipeline.load_accumulated_data manual__2025-10-05T02:17:44.447537+00:00 [running]> on host 251551b582e0
+[2025-10-05T02:17:48.961+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='mlops-team-5' AIRFLOW_CTX_DAG_ID='forest_cover_mlops_pipeline' AIRFLOW_CTX_TASK_ID='load_accumulated_data' AIRFLOW_CTX_EXECUTION_DATE='2025-10-05T02:17:44.447537+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-10-05T02:17:44.447537+00:00'
+[2025-10-05T02:17:48.962+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-10-05T02:17:49.048+0000] {logging_mixin.py:190} INFO - ✓ Datos acumulados cargados desde PostgreSQL
+[2025-10-05T02:17:49.048+0000] {logging_mixin.py:190} INFO -   - Batches únicos cargados: [3, 4, 5]
+[2025-10-05T02:17:49.048+0000] {logging_mixin.py:190} INFO -   - Total de registros: 17430
+[2025-10-05T02:17:49.048+0000] {logging_mixin.py:190} INFO -   - Forma del DataFrame: (17430, 13)
+[2025-10-05T02:17:49.048+0000] {logging_mixin.py:190} INFO -   - Columnas: ['Elevation', 'Aspect', 'Slope', 'Horizontal_Distance_To_Hydrology', 'Vertical_Distance_To_Hydrology', 'Horizontal_Distance_To_Roadways', 'Hillshade_9am', 'Hillshade_Noon', 'Hillshade_3pm', 'Horizontal_Distance_To_Fire_Points', 'Wilderness_Area', 'Soil_Type', 'Cover_Type']
+[2025-10-05T02:17:49.049+0000] {python.py:240} INFO - Done. Returned value was:        Elevation  Aspect  Slope  ...  Wilderness_Area  Soil_Type  Cover_Type
+0           2884      47     10  ...        Commanche      C4704           1
+1           3152     356     15  ...        Commanche      C7202           0
+2           3233     304     28  ...            Rawah      C7745           0
+3           2851     123     12  ...        Commanche      C7755           1
+4           2857      37     14  ...        Commanche      C4704           1
+...          ...     ...    ...  ...              ...        ...         ...
+17425       3225      62     13  ...        Commanche      C7755           0
+17426       3318      83      4  ...            Rawah      C8776           6
+17427       2861     136     26  ...            Rawah      C7746           0
+17428       2955      43      8  ...        Commanche      C7756           0
+17429       2948     247      2  ...        Commanche      C7756           1
+
+[17430 rows x 13 columns]
+[2025-10-05T02:17:49.118+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-10-05T02:17:49.118+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=forest_cover_mlops_pipeline, task_id=load_accumulated_data, run_id=manual__2025-10-05T02:17:44.447537+00:00, execution_date=20251005T021744, start_date=20251005T021748, end_date=20251005T021749
+[2025-10-05T02:17:49.151+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-10-05T02:17:49.176+0000] {taskinstance.py:3900} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-10-05T02:17:49.177+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

@@ -1,0 +1,106 @@
+[2025-10-05T08:13:12.837+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-10-05T08:13:12.851+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: forest_cover_mlops_pipeline.train_and_log_models scheduled__2025-10-05T08:05:00+00:00 [queued]>
+[2025-10-05T08:13:12.856+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: forest_cover_mlops_pipeline.train_and_log_models scheduled__2025-10-05T08:05:00+00:00 [queued]>
+[2025-10-05T08:13:12.856+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 3
+[2025-10-05T08:13:12.862+0000] {taskinstance.py:2888} INFO - Executing <Task(_PythonDecoratedOperator): train_and_log_models> on 2025-10-05 08:05:00+00:00
+[2025-10-05T08:13:12.868+0000] {standard_task_runner.py:72} INFO - Started process 2710 to run task
+[2025-10-05T08:13:12.872+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'forest_cover_mlops_pipeline', 'train_and_log_models', 'scheduled__2025-10-05T08:05:00+00:00', '--job-id', '76', '--raw', '--subdir', 'DAGS_FOLDER/forest_cover_dag.py', '--cfg-path', '/home/airflow/tmp/tmprlke5avr']
+[2025-10-05T08:13:12.874+0000] {standard_task_runner.py:105} INFO - Job 76: Subtask train_and_log_models
+[2025-10-05T08:13:12.982+0000] {task_command.py:467} INFO - Running <TaskInstance: forest_cover_mlops_pipeline.train_and_log_models scheduled__2025-10-05T08:05:00+00:00 [running]> on host 3702e9b7dcde
+[2025-10-05T08:13:13.346+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='mlops-team' AIRFLOW_CTX_DAG_ID='forest_cover_mlops_pipeline' AIRFLOW_CTX_TASK_ID='train_and_log_models' AIRFLOW_CTX_EXECUTION_DATE='2025-10-05T08:05:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-10-05T08:05:00+00:00'
+[2025-10-05T08:13:13.347+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-10-05T08:13:13.501+0000] {logging_mixin.py:190} INFO - Entrenando 3 modelos con GridSearchCV...
+[2025-10-05T08:13:13.501+0000] {logging_mixin.py:190} INFO - 
+==================================================
+[2025-10-05T08:13:13.501+0000] {logging_mixin.py:190} INFO - Modelo: RandomForest
+[2025-10-05T08:13:13.502+0000] {logging_mixin.py:190} INFO - ==================================================
+[2025-10-05T08:13:13.523+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:13:13 WARNING mlflow.utils.git_utils: Failed to import Git (the Git executable is probably not on your PATH), so Git SHA is not available. Error: Failed to initialize: Bad git executable.
+The git executable must be specified in one of the following ways:
+    - be included in your $PATH
+    - be set via $GIT_PYTHON_GIT_EXECUTABLE
+    - explicitly set via git.refresh(<full-path-to-git-executable>)
+
+All git commands will error until this is rectified.
+
+This initial message can be silenced or aggravated in the future by setting the
+$GIT_PYTHON_REFRESH environment variable. Use one of the following values:
+    - quiet|q|silence|s|silent|none|n|0: for no message or exception
+    - warn|w|warning|log|l|1: for a warning message (logging level CRITICAL, displayed by default)
+    - error|e|exception|raise|r|2: for a raised exception
+
+Example:
+    export GIT_PYTHON_REFRESH=quiet
+[2025-10-05T08:13:13.581+0000] {warnings.py:110} WARNING - /home/airflow/.local/lib/python3.11/site-packages/joblib/parallel.py:1379: UserWarning: Loky-backed parallel loops cannot be called in a multiprocessing, setting n_jobs=1
+  n_jobs = self._backend.configure(
+
+[2025-10-05T08:13:13.581+0000] {logging_mixin.py:190} INFO - Fitting 3 folds for each of 12 candidates, totalling 36 fits
+[2025-10-05T08:13:51.136+0000] {logging_mixin.py:190} INFO -   Mejores parámetros: {'classifier__max_depth': 20, 'classifier__min_samples_split': 2, 'classifier__n_estimators': 100}
+[2025-10-05T08:13:55.909+0000] {logging_mixin.py:190} INFO -   Train Accuracy: 1.0000
+[2025-10-05T08:13:55.909+0000] {logging_mixin.py:190} INFO -   Test Accuracy: 0.9635
+[2025-10-05T08:13:55.909+0000] {logging_mixin.py:190} INFO -   Test F1 (weighted): 0.9631
+[2025-10-05T08:13:55.909+0000] {logging_mixin.py:190} INFO -   CV Score: 0.9506 (+/- 0.0023)
+[2025-10-05T08:13:58.042+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:13:58 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+[2025-10-05T08:13:58.108+0000] {credentials.py:1147} INFO - Found credentials in environment variables.
+[2025-10-05T08:13:58.471+0000] {logging_mixin.py:190} WARNING - Registered model 'forest_cover_randomforest' already exists. Creating a new version of this model...
+[2025-10-05T08:13:58.487+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:13:58 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: forest_cover_randomforest, version 5
+[2025-10-05T08:13:58.487+0000] {logging_mixin.py:190} WARNING - Created version '5' of model 'forest_cover_randomforest'.
+[2025-10-05T08:13:58.496+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:13:58 INFO mlflow.tracking._tracking_service.client: 🏃 View run RandomForest_batch_4 at: http://mlflow:5000/#/experiments/1/runs/55a3d7f233444865ac8e59e338577aed.
+[2025-10-05T08:13:58.497+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:13:58 INFO mlflow.tracking._tracking_service.client: 🧪 View experiment at: http://mlflow:5000/#/experiments/1.
+[2025-10-05T08:13:58.507+0000] {logging_mixin.py:190} INFO - 
+==================================================
+[2025-10-05T08:13:58.507+0000] {logging_mixin.py:190} INFO - Modelo: GradientBoosting
+[2025-10-05T08:13:58.507+0000] {logging_mixin.py:190} INFO - ==================================================
+[2025-10-05T08:13:58.573+0000] {warnings.py:110} WARNING - /home/airflow/.local/lib/python3.11/site-packages/joblib/parallel.py:1379: UserWarning: Loky-backed parallel loops cannot be called in a multiprocessing, setting n_jobs=1
+  n_jobs = self._backend.configure(
+
+[2025-10-05T08:13:58.573+0000] {logging_mixin.py:190} INFO - Fitting 3 folds for each of 8 candidates, totalling 24 fits
+[2025-10-05T08:19:14.223+0000] {logging_mixin.py:190} INFO -   Mejores parámetros: {'classifier__learning_rate': 0.1, 'classifier__max_depth': 5, 'classifier__n_estimators': 100}
+[2025-10-05T08:20:15.549+0000] {logging_mixin.py:190} INFO -   Train Accuracy: 0.9780
+[2025-10-05T08:20:15.549+0000] {logging_mixin.py:190} INFO -   Test Accuracy: 0.9427
+[2025-10-05T08:20:15.549+0000] {logging_mixin.py:190} INFO -   Test F1 (weighted): 0.9421
+[2025-10-05T08:20:15.549+0000] {logging_mixin.py:190} INFO -   CV Score: 0.9357 (+/- 0.0007)
+[2025-10-05T08:20:17.084+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:20:17 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+[2025-10-05T08:20:17.202+0000] {logging_mixin.py:190} WARNING - Registered model 'forest_cover_gradientboosting' already exists. Creating a new version of this model...
+[2025-10-05T08:20:17.273+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:20:17 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: forest_cover_gradientboosting, version 5
+[2025-10-05T08:20:17.274+0000] {logging_mixin.py:190} WARNING - Created version '5' of model 'forest_cover_gradientboosting'.
+[2025-10-05T08:20:17.295+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:20:17 INFO mlflow.tracking._tracking_service.client: 🏃 View run GradientBoosting_batch_4 at: http://mlflow:5000/#/experiments/1/runs/7c021554e07e4099a04acade483f65c6.
+[2025-10-05T08:20:17.296+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:20:17 INFO mlflow.tracking._tracking_service.client: 🧪 View experiment at: http://mlflow:5000/#/experiments/1.
+[2025-10-05T08:20:17.314+0000] {logging_mixin.py:190} INFO - 
+==================================================
+[2025-10-05T08:20:17.315+0000] {logging_mixin.py:190} INFO - Modelo: LogisticRegression
+[2025-10-05T08:20:17.315+0000] {logging_mixin.py:190} INFO - ==================================================
+[2025-10-05T08:20:17.448+0000] {warnings.py:110} WARNING - /home/airflow/.local/lib/python3.11/site-packages/joblib/parallel.py:1379: UserWarning: Loky-backed parallel loops cannot be called in a multiprocessing, setting n_jobs=1
+  n_jobs = self._backend.configure(
+
+[2025-10-05T08:20:17.448+0000] {logging_mixin.py:190} INFO - Fitting 3 folds for each of 6 candidates, totalling 18 fits
+[2025-10-05T08:20:45.363+0000] {warnings.py:110} WARNING - /home/airflow/.local/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:349: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+
+[2025-10-05T08:20:49.107+0000] {warnings.py:110} WARNING - /home/airflow/.local/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:349: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+
+[2025-10-05T08:20:52.863+0000] {warnings.py:110} WARNING - /home/airflow/.local/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:349: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+
+[2025-10-05T08:20:56.513+0000] {logging_mixin.py:190} INFO -   Mejores parámetros: {'classifier__C': 1.0, 'classifier__solver': 'lbfgs'}
+[2025-10-05T08:21:03.528+0000] {logging_mixin.py:190} INFO -   Train Accuracy: 0.7639
+[2025-10-05T08:21:03.528+0000] {logging_mixin.py:190} INFO -   Test Accuracy: 0.7671
+[2025-10-05T08:21:03.529+0000] {logging_mixin.py:190} INFO -   Test F1 (weighted): 0.7567
+[2025-10-05T08:21:03.529+0000] {logging_mixin.py:190} INFO -   CV Score: 0.7632 (+/- 0.0007)
+[2025-10-05T08:21:05.185+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:21:05 WARNING mlflow.models.model: Model logged without a signature and input example. Please set `input_example` parameter when logging the model to auto infer the model signature.
+[2025-10-05T08:21:05.240+0000] {logging_mixin.py:190} WARNING - Registered model 'forest_cover_logisticregression' already exists. Creating a new version of this model...
+[2025-10-05T08:21:05.270+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:21:05 INFO mlflow.store.model_registry.abstract_store: Waiting up to 300 seconds for model version to finish creation. Model name: forest_cover_logisticregression, version 5
+[2025-10-05T08:21:05.270+0000] {logging_mixin.py:190} WARNING - Created version '5' of model 'forest_cover_logisticregression'.
+[2025-10-05T08:21:05.287+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:21:05 INFO mlflow.tracking._tracking_service.client: 🏃 View run LogisticRegression_batch_4 at: http://mlflow:5000/#/experiments/1/runs/f4c180b39bff4eb19740a427b7aafe74.
+[2025-10-05T08:21:05.287+0000] {logging_mixin.py:190} WARNING - 2025/10/05 08:21:05 INFO mlflow.tracking._tracking_service.client: 🧪 View experiment at: http://mlflow:5000/#/experiments/1.
+[2025-10-05T08:21:05.305+0000] {logging_mixin.py:190} INFO - 
+==================================================
+[2025-10-05T08:21:05.305+0000] {logging_mixin.py:190} INFO - ✓ Entrenamiento completado
+[2025-10-05T08:21:05.306+0000] {logging_mixin.py:190} INFO -   Mejor modelo: RandomForest (Accuracy: 0.9635)
+[2025-10-05T08:21:05.306+0000] {logging_mixin.py:190} INFO - ==================================================
+[2025-10-05T08:21:05.306+0000] {python.py:240} INFO - Done. Returned value was: {'results': {'RandomForest': {'test_accuracy': 0.9635111876075731, 'test_f1_weighted': 0.9631194392856999, 'cv_mean_score': 0.950602546473795, 'best_params': {'classifier__max_depth': 20, 'classifier__min_samples_split': 2, 'classifier__n_estimators': 100}}, 'GradientBoosting': {'test_accuracy': 0.942685025817556, 'test_f1_weighted': 0.9421417240627105, 'cv_mean_score': 0.9356712802869267, 'best_params': {'classifier__learning_rate': 0.1, 'classifier__max_depth': 5, 'classifier__n_estimators': 100}}, 'LogisticRegression': {'test_accuracy': 0.7671256454388985, 'test_f1_weighted': 0.756661658224264, 'cv_mean_score': 0.763209978208223, 'best_params': {'classifier__C': 1.0, 'classifier__solver': 'lbfgs'}}}, 'best_model': 'RandomForest', 'best_score': 0.9635111876075731, 'experiment_name': 'forest_cover_classification', 'mlflow_uri': 'http://mlflow:5000'}
+[2025-10-05T08:21:05.372+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-10-05T08:21:05.373+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=forest_cover_mlops_pipeline, task_id=train_and_log_models, run_id=scheduled__2025-10-05T08:05:00+00:00, execution_date=20251005T080500, start_date=20251005T081312, end_date=20251005T082105
+[2025-10-05T08:21:05.413+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-10-05T08:21:05.436+0000] {taskinstance.py:3900} INFO - 1 downstream tasks scheduled from follow-on schedule check
+[2025-10-05T08:21:05.438+0000] {local_task_job_runner.py:245} INFO - ::endgroup::

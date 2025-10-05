@@ -1,0 +1,22 @@
+[2025-10-05T08:41:43.620+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-10-05T08:41:43.642+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: forest_cover_mlops_pipeline.store_batch_in_postgres scheduled__2025-10-05T08:35:00+00:00 [queued]>
+[2025-10-05T08:41:43.648+0000] {taskinstance.py:2612} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: forest_cover_mlops_pipeline.store_batch_in_postgres scheduled__2025-10-05T08:35:00+00:00 [queued]>
+[2025-10-05T08:41:43.648+0000] {taskinstance.py:2865} INFO - Starting attempt 1 of 3
+[2025-10-05T08:41:43.656+0000] {taskinstance.py:2888} INFO - Executing <Task(_PythonDecoratedOperator): store_batch_in_postgres> on 2025-10-05 08:35:00+00:00
+[2025-10-05T08:41:43.663+0000] {standard_task_runner.py:72} INFO - Started process 4529 to run task
+[2025-10-05T08:41:43.666+0000] {standard_task_runner.py:104} INFO - Running: ['airflow', 'tasks', 'run', 'forest_cover_mlops_pipeline', 'store_batch_in_postgres', 'scheduled__2025-10-05T08:35:00+00:00', '--job-id', '91', '--raw', '--subdir', 'DAGS_FOLDER/forest_cover_dag.py', '--cfg-path', '/home/airflow/tmp/tmpo_s4inmo']
+[2025-10-05T08:41:43.667+0000] {standard_task_runner.py:105} INFO - Job 91: Subtask store_batch_in_postgres
+[2025-10-05T08:41:43.708+0000] {task_command.py:467} INFO - Running <TaskInstance: forest_cover_mlops_pipeline.store_batch_in_postgres scheduled__2025-10-05T08:35:00+00:00 [running]> on host 3702e9b7dcde
+[2025-10-05T08:41:43.796+0000] {taskinstance.py:3131} INFO - Exporting env vars: AIRFLOW_CTX_DAG_OWNER='mlops-team' AIRFLOW_CTX_DAG_ID='forest_cover_mlops_pipeline' AIRFLOW_CTX_TASK_ID='store_batch_in_postgres' AIRFLOW_CTX_EXECUTION_DATE='2025-10-05T08:35:00+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='scheduled__2025-10-05T08:35:00+00:00'
+[2025-10-05T08:41:43.797+0000] {taskinstance.py:731} INFO - ::endgroup::
+[2025-10-05T08:41:43.833+0000] {logging_mixin.py:190} INFO - ✓ Batch almacenado en PostgreSQL
+[2025-10-05T08:41:43.834+0000] {logging_mixin.py:190} INFO -   - ID insertado: 8
+[2025-10-05T08:41:43.834+0000] {logging_mixin.py:190} INFO -   - Batch number: 7
+[2025-10-05T08:41:43.834+0000] {logging_mixin.py:190} INFO -   - Registros en este batch: 5810
+[2025-10-05T08:41:43.834+0000] {logging_mixin.py:190} INFO -   - Total de batches acumulados: 7
+[2025-10-05T08:41:43.834+0000] {logging_mixin.py:190} INFO -   - Total de registros acumulados: 46480
+[2025-10-05T08:41:43.834+0000] {python.py:240} INFO - Done. Returned value was: {'batch_number': 7, 'records_in_batch': 5810, 'total_batches': 7, 'total_records': 46480}
+[2025-10-05T08:41:43.856+0000] {taskinstance.py:340} INFO - ::group::Post task execution logs
+[2025-10-05T08:41:43.856+0000] {taskinstance.py:352} INFO - Marking task as SUCCESS. dag_id=forest_cover_mlops_pipeline, task_id=store_batch_in_postgres, run_id=scheduled__2025-10-05T08:35:00+00:00, execution_date=20251005T083500, start_date=20251005T084143, end_date=20251005T084143
+[2025-10-05T08:41:43.878+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-10-05T08:41:43.891+0000] {local_task_job_runner.py:245} INFO - ::endgroup::
