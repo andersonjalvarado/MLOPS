@@ -108,7 +108,7 @@ docker exec -it PostgreSQL-Batches psql -U batchuser -d batches_db
 
 ### 4. Crear bucket en MinIO
 
-1. Acceder a MinIO Console: http://localhost:9001
+1. Acceder a MinIO Console: `http://localhost:9001`
 2. Usuario: admin / Contraseña: supersecret123
 3. Crear bucket llamado: mlflows3
 
@@ -137,7 +137,7 @@ docker compose up -d mlflow
 # Verificar logs
 docker compose logs -f mlflow
 ```
-Acceder a MLflow UI: http://localhost:5001
+Acceder a MLflow UI: `http://localhost:5001`
 
 
 ### 6. Levantar Airflow
@@ -151,7 +151,7 @@ docker compose up -d airflow-webserver airflow-scheduler airflow-worker
 # Verificar logs
 docker compose logs -f airflow-scheduler
 ```
-Acceder a Airflow UI: http://localhost:8080
+Acceder a Airflow UI: `http://localhost:8080`
 
 Usuario: admin / Contraseña: admin123
 
@@ -165,7 +165,7 @@ docker compose logs -f streamlit-ui
 
 Acceder a Streamlit UI
 
-Abrir en navegador: http://localhost:8503
+Abrir en navegador: `http://localhost:8503`
 
 ### 8. Verificar todos los servicios
 ```bash
@@ -188,16 +188,13 @@ docker exec MySQL-MLflow mysqladmin ping -h localhost -u mlflowuser -pmlflowpass
 3. El DAG se ejecutará automáticamente cada 5 minutos
 
 
-
-
-
-### 14. Monitorear ejecuciones
+### 10. Monitorear ejecuciones
 ```bash
 docker compose logs -f airflow-scheduler --tail=100
 docker compose logs -f airflow-worker --tail=100
 ```
 
-### 15. Verificar progreso en PostgreSQL
+### 11. Verificar progreso en PostgreSQL
 ```bash
 docker exec -it PostgreSQL-Batches psql -U batchuser -d batches_db -c "SELECT * FROM batch_statistics;"
 ```
@@ -220,18 +217,18 @@ SELECT SUM(total_records) as total FROM batch_status;
 ```
 
 
-### 16. Ver experimentos en MLflow
+### 12. Ver experimentos en MLflow
 
 `http://localhost:5001` - Ver runs y métricas
 
-### 17. Promocionar modelo a Production
+### 13. Promocionar modelo a Production
 
 En MLflow UI:
 
 - Models → Seleccionar modelo → Seleccionar versión → Stage: Production
 
 
-Verificar
+Verificar:
 ``` bash
 docker exec MLflow python3 -c "
 import mlflow
@@ -269,22 +266,28 @@ print('\n' + '=' * 60)
 "
 ```
 
-### 18. Recargar modelo en Inference
+### 14. Recargar modelo en Inference
 Desde Streamlit UI:
 
 - Ir a "🤖 Predicción" → Tab "Información del Modelo" → Click "♻️ Recargar Modelo"
 
-### 19. Realizar predicción
+### 15. Realizar predicción
 
 En Streamlit UI:
 
 - Ir a "🤖 Predicción" → Ingresar valores → Click "🎯 Realizar Predicción"
 
 
-### 20. Detener todos los servicios
+### 16. Detener todos los servicios
 ```bash
 docker compose down
 
 # Para eliminar también los volúmenes
 docker compose down -v
 ```
+
+
+# Demostración
+La demostración del sistema completo en funcionamiento se encuentra en el siguiente video:
+
+https://youtu.be/1C32WFu_lsE
