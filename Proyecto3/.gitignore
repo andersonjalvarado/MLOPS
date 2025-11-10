@@ -1,0 +1,4 @@
+
+# Ignorar logs de Airflow
+airflow/logs/
+*.log
